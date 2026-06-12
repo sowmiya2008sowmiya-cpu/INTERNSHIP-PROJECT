@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Performance Prediction</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&display=swap');
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background: radial-gradient(circle at center, #0B132B 0%, #060914 100%);
+            color: #f8fafc;
+            line-height: 1.6;
+            padding: 50px 20px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            font-size: 18px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1150px;
+            background: rgba(17, 24, 39, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 50px;
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6), 
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            color: #38bdf8;
+            margin-bottom: 25px;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            text-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
+            text-align: left;
+        }
+
+        .project-info {
+            background: rgba(30, 41, 59, 0.5);
+            padding: 30px;
+            border-radius: 16px;
+            border-left: 6px solid #38bdf8;
+            margin-bottom: 40px;
+        }
+
+        .project-info h3 {
+            color: #cbd5e1;
+            font-size: 1.25rem;
+            margin-bottom: 12px;
+            font-weight: 700;
+            text-align: left;
+        }
+
+        .project-info p, .project-info li {
+            color: #94a3b8;
+            font-size: 1.25rem;
+        }
+
+        .project-info ul {
+            list-style-type: none;
+        }
+
+        .project-info li {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 8px;
+        }
+
+        .project-info li::before {
+            content: "•";
+            color: #34d399;
+            font-size: 1.2rem;
+            font-weight: bold;
+            position: absolute;
+            left: 5px;
+            top: -2px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .input-group {
+            background: rgba(15, 23, 42, 0.6);
+            padding: 22px;
+            border-radius: 16px;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+        }
+
+        label {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #f1f5f9;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        label span {
+            color: #38bdf8;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        select, input[type="range"] {
+            background: #0f172a;
+            color: #38bdf8;
+            border: 2px solid #334155;
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            outline: none;
+            width: 100%;
+            margin-top: 5px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #0284c7 0%, #0d9488 100%);
+            color: white;
+            padding: 22px;
+            border-radius: 16px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 15px 35px -5px rgba(2, 132, 199, 0.4);
+            width: 100%;
+            border: none;
+            transition: 0.3s;
+            margin-top: 35px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .result {
+            margin-top: 45px;
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.5);
+            color: #34d399;
+            padding: 26px;
+            border-radius: 16px;
+            text-align: center;
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        .visualization-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            margin-top: 35px;
+        }
+
+        .visualization {
+            background: rgba(30, 41, 59, 0.4);
+            padding: 35px;
+            border-radius: 20px;
+            border: 1px solid rgba(51, 65, 85, 0.6);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        .visualization h3 {
+            color: #38bdf8;
+            margin-bottom: 25px;
+            font-size: 1.4rem;
+            font-weight: 600;
+            text-align: center;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2><strong>Student Performance Prediction</strong></h2>
+
+        <div class="project-info">
+            <h3><strong>About the Project</strong></h3>
+            <p>This is an interactive machine learning web application designed to instantly predict a student's academic performance level based on various inputs.</p>
+            <br>
+            <h3><strong>The System Analyzes</strong></h3>
+            <ul>
+                <li><strong>Study Habits & Attendance:</strong> Study hours per week, attendance percentage, and previous exam scores.</li>
+                <li><strong>Subject Performance:</strong> Individual scores in Math, Science, and English.</li>
+                <li><strong>Socio-Economic Factors:</strong> Parental education, internet access, extracurricular activities, socio-economic status, and school type.</li>
+            </ul>
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid #374151; margin: 30px 0;">
+
+        <form action="/predict" method="POST">
+            <div class="form-grid">
+                
+                <div class="input-group">
+                    <label>Gender:</label>
+                    <select name="Gender" required>
+                        <option value="Male" {% if Gender == 'Male' %}selected{% endif %}>Male</option>
+                        <option value="Female" {% if Gender == 'Female' %}selected{% endif %}>Female</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>Age (15-18): <span id="ageVal">{{ Age | default(16) }}</span></label>
+                    <input type="range" name="Age" min="15" max="18" value="{{ Age | default(16) }}" oninput="updateCharts(); ageVal.innerText = this.value" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Attendance Percentage (%): <span id="attVal">{{ Attendance | default(50) }}</span></label>
+                    <input type="range" name="Attendance" min="0" max="100" value="{{ Attendance | default(50) }}" oninput="updateCharts(); attVal.innerText = this.value" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Study Hours per Week: <span id="studyVal">{{ Study_Hours | default(10) }}</span></label>
+                    <input type="range" name="Study_Hours" min="0" max="50" step="1" value="{{ Study_Hours | default(10) }}" oninput="updateCharts(); studyVal.innerText = this.value" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Parental Education:</label>
+                    <select id="parentEdu" name="Parental_Education" onchange="updateCharts()" required>
+                        <option value="No formal" {% if Parental_Education == 'No formal' %}selected{% endif %}>No formal</option>
+                        <option value="Primary" {% if Parental_Education == 'Primary' %}selected{% endif %}>Primary</option>
+                        <option value="Secondary" {% if Parental_Education == 'Secondary' %}selected{% endif %}>Secondary</option>
+                        <option value="Higher" {% if Parental_Education == 'Higher' %}selected{% endif %}>Higher</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>Previous Exam Score: <span id="prevVal">{{ Previous_Score | default(50) }}</span></label>
+                    <input type="range" name="Previous_Score" min="0" max="100" value="{{ Previous_Score | default(50) }}" oninput="updateCharts(); prevVal.innerText = this.value" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Math Score (0-50): <span id="mathVal">{{ Math_Score | default(25) }}</span></label>
+                    <input type="range" name="Math_Score" min="0" max="50" value="{{ Math_Score | default(25) }}" oninput="updateCharts(); mathVal.innerText = this.value" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Science Score (0-50): <span id="sciVal">{{ Science_Score | default(25) }}</span></label>
+                    <input type="range" name="Science_Score" min="0" max="50" value="{{ Science_Score | default(25) }}" oninput="updateCharts(); sciVal.innerText = this.value" required>
+                </div>
+
+                <div class="input-group">
+                    <label>English Score (0-50): <span id="engVal">{{ English_Score | default(25) }}</span></label>
+                    <input type="range" name="English_Score" min="0" max="50" value="{{ English_Score | default(25) }}" oninput="updateCharts(); engVal.innerText = this.value" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Internet Access:</label>
+                    <select id="internet" name="Internet_Access" onchange="updateCharts()" required>
+                        <option value="Yes" {% if Internet_Access == 'Yes' %}selected{% endif %}>Yes</option>
+                        <option value="No" {% if Internet_Access == 'No' %}selected{% endif %}>No</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>Extracurricular Activities:</label>
+                    <select id="extra" name="Extracurricular" onchange="updateCharts()" required>
+                        <option value="Yes" {% if Extracurricular == 'Yes' %}selected{% endif %}>Yes</option>
+                        <option value="No" {% if Extracurricular == 'No' %}selected{% endif %}>No</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>Socio-Economic Status:</label>
+                    <select id="ses" name="Socio_Economic" onchange="updateCharts()" required>
+                        <option value="Low" {% if Socio_Economic == 'Low' %}selected{% endif %}>Low</option>
+                        <option value="Medium" {% if Socio_Economic == 'Medium' %}selected{% endif %}>Medium</option>
+                        <option value="High" {% if Socio_Economic == 'High' %}selected{% endif %}>High</option>
+                    </select>
+                </div>
+
+                <div class="input-group full-width" style="grid-column: span 2;">
+                    <label>School Type:</label>
+                    <select id="schoolType" name="School_Type" onchange="updateCharts()" required>
+                        <option value="Public" {% if School_Type == 'Public' %}selected{% endif %}>Public</option>
+                        <option value="Private" {% if School_Type == 'Private' %}selected{% endif %}>Private</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="visualization-grid">
+                <div class="visualization">
+                    <h3>Subject Performance</h3>
+                    <canvas id="subjectLineChart" style="max-height: 250px; width: 100%;"></canvas>
+                </div>
+
+                <div class="visualization">
+                    <h3>Study Habits and Attendance</h3>
+                    <canvas id="studyBarChart" style="max-height: 250px; width: 100%;"></canvas>
+                </div>
+                
+                <div class="visualization">
+                    <h3>Socio-Economic Factors</h3>
+                    <canvas id="socioBarChart" style="max-height: 250px; width: 100%;"></canvas>
+                </div>
+            </div>
+
+            <button type="submit" class="btn">Predict Performance</button>
+        </form>
+
+        {% if prediction %}
+        <div class="result">
+            Predicted Performance Level: {{ prediction }}
+        </div>
+        {% endif %}
+        
+    </div>
+
+    <script>
+        let subChart, studyChart, socioChart;
+
+        function getChartColors() {
+            return {
+                text: '#f8fafc',
+                grid: '#334155',
+                lineColor: '#38bdf8',
+                bar1: '#38bdf8',
+                bar2: '#34d399',
+                barColors: ['#a78bfa', '#fb923c', '#22d3ee', '#facc15', '#ec4899']
+            };
+        }
+
+        function initCharts() {
+            const colors = getChartColors();
+
+            // 1. Subject Performance Line Chart
+            const ctxSub = document.getElementById('subjectLineChart').getContext('2d');
+            subChart = new Chart(ctxSub, {
+                type: 'line',
+                data: {
+                    labels: ['Math', 'Science', 'English', 'Previous Score'],
+                    datasets: [{
+                        label: 'Scores',
+                        data: [
+                            document.querySelector('input[name="Math_Score"]').value,
+                            document.querySelector('input[name="Science_Score"]').value,
+                            document.querySelector('input[name="English_Score"]').value,
+                            document.querySelector('input[name="Previous_Score"]').value
+                        ],
+                        borderColor: colors.lineColor,
+                        backgroundColor: 'rgba(56, 189, 248, 0.1)',
+                        borderWidth: 3,
+                        pointRadius: 6,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { 
+                            min: 0, max: 100, 
+                            grid: { color: colors.grid },
+                            ticks: { color: colors.text }
+                        },
+                        x: { 
+                            grid: { color: colors.grid },
+                            ticks: { color: colors.text, font: { size: 13 } }
+                        }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // 2. Study Habits and Attendance Bar Chart
+            const ctxStudy = document.getElementById('studyBarChart').getContext('2d');
+            studyChart = new Chart(ctxStudy, {
+                type: 'bar',
+                data: {
+                    labels: ['Attendance (%)', 'Study Hours'],
+                    datasets: [{
+                        label: 'Hours / %',
+                        data: [
+                            document.querySelector('input[name="Attendance"]').value,
+                            document.querySelector('input[name="Study_Hours"]').value
+                        ],
+                        backgroundColor: ['#38bdf8', '#fb923c']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { 
+                            min: 0, max: 100, 
+                            grid: { color: colors.grid },
+                            ticks: { color: colors.text }
+                        },
+                        x: { 
+                            grid: { color: colors.grid },
+                            ticks: { color: colors.text, font: { size: 13 } }
+                        }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // 3. Socio-Economic Factors Bar Chart
+            const eduMap = {'No formal': 0, 'Primary': 1, 'Secondary': 2, 'Higher': 3};
+            const sesMap = {'Low': 1, 'Medium': 2, 'High': 3};
+            
+            const ctxSocio = document.getElementById('socioBarChart').getContext('2d');
+            socioChart = new Chart(ctxSocio, {
+                type: 'bar',
+                data: {
+                    labels: ['Parent Edu', 'Internet', 'Extra-curr', 'Socio-Econ', 'School Type'],
+                    datasets: [{
+                        data: [
+                            eduMap[document.getElementById('parentEdu').value],
+                            document.getElementById('internet').value === 'Yes' ? 1 : 0,
+                            document.getElementById('extra').value === 'Yes' ? 1 : 0,
+                            sesMap[document.getElementById('ses').value],
+                            document.getElementById('schoolType').value === 'Private' ? 3 : 1
+                        ],
+                        backgroundColor: colors.barColors
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { 
+                            min: 0, max: 3.5, 
+                            grid: { color: colors.grid },
+                            ticks: { color: colors.text }
+                        },
+                        x: { 
+                            grid: { color: colors.grid },
+                            ticks: { color: colors.text, font: { size: 13 } }
+                        }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        function updateCharts() {
+            subChart.data.datasets[0].data = [
+                document.querySelector('input[name="Math_Score"]').value,
+                document.querySelector('input[name="Science_Score"]').value,
+                document.querySelector('input[name="English_Score"]').value,
+                document.querySelector('input[name="Previous_Score"]').value
+            ];
+            subChart.update();
+
+            studyChart.data.datasets[0].data = [
+                document.querySelector('input[name="Attendance"]').value,
+                document.querySelector('input[name="Study_Hours"]').value
+            ];
+            studyChart.update();
+
+            const eduMap = {'No formal': 0, 'Primary': 1, 'Secondary': 2, 'Higher': 3};
+            const sesMap = {'Low': 1, 'Medium': 2, 'High': 3};
+            
+            socioChart.data.datasets[0].data = [
+                eduMap[document.getElementById('parentEdu').value],
+                document.getElementById('internet').value === 'Yes' ? 1 : 0,
+                document.getElementById('extra').value === 'Yes' ? 1 : 0,
+                sesMap[document.getElementById('ses').value],
+                document.getElementById('schoolType').value === 'Private' ? 3 : 1
+            ];
+            socioChart.update();
+        }
+
+        window.onload = initCharts;
+    </script>
+</body>
+</html>
